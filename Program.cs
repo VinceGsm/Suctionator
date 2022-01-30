@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -11,19 +13,30 @@ namespace Suctionator
         private static string mediaName;
         private static string mediaSeason;
         private static List<string> uptoboxLinks = new List<string>();
+        private static ILogger log;
 
         static void Main(string[] args)
         {
+            #region Log init
+            using var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter("NonHostConsoleApp.Program", LogLevel.Debug)
+                    .AddConsole();
+            });
+            log = loggerFactory.CreateLogger<Program>();
+            //log.LogInformation("Info ");
+            //log.LogWarning("Warning ");
+            //log.LogError("Error ");
+            //log.LogCritical("Critical ");
+            #endregion
+
             urlInput = String.Empty;
             mediaName = String.Empty; //[h3 p-2 : name]
             mediaSeason = String.Empty;
             Console.WriteLine("Bienvenue sur Suctionator !");
-
-            // dossier LOG
-            // couleur ?
-            // mediaSeason handle both case
-
-
 
             // 1
             Start:
@@ -34,10 +47,9 @@ namespace Suctionator
             {
                 Console.WriteLine("URL valid"); // TO EDIT / CHANGE
 
-                //GetUptoboxLinks(); // TODO 
+                GetUptoboxLinks(); // TODO 
 
-                //Console.WriteLine($"My cells have detected {uptoboxLinks} uptobox links to download for {mediaName}{mediaSeason}. Is that correct ?"); // TO EDIT / CHANGE                
-                Console.WriteLine($"My cells have detected 55 uptobox links to download for Toto saison 9. Is that correct ?"); // TO EDIT / CHANGE                
+                Console.WriteLine($"My cells have detected {uptoboxLinks} uptobox links to download for {mediaName}{mediaSeason}. Is that correct ?"); // TO EDIT / CHANGE                                         
                 Console.WriteLine("'y' for YES || 'n' for NO :"); // TO EDIT / CHANGE
                 char response = Console.ReadLine()[0];
 
@@ -71,7 +83,7 @@ namespace Suctionator
         {
             if (!urlInput.Contains("tirexo"))
             {
-                Console.WriteLine("This is not Tirexo URL");
+                log.LogWarning("This is not Tirexo URL") ;                
                 return false;
             }
 
@@ -88,12 +100,13 @@ namespace Suctionator
             }
             catch (Exception ex)
             {
+                log.LogCritical(ex.Message);
                 return false;
             }
         }
         #endregion
 
-        #region WriteLine
+        #region Console
         private static void AskInput()
         {
             Console.WriteLine("Enter the Tirexo URL of your choice :");
@@ -102,13 +115,13 @@ namespace Suctionator
 
         private static void WrongInput()
         {
-            Console.WriteLine("ERROR : Wrong input");
+            Console.WriteLine("Wrong input, let's retry !");
         }
 
         private static void AskTicketIssue()
         {
-            Console.WriteLine($"Mission Failed... If possible go open a ticket issue with your requested URL in : {urlIssues}");
-            Console.WriteLine("In advance thank you for helping me improve this little exe :)");
+            Console.WriteLine($"Mission Failed... Please go open a ticket issue with your requested url in : {urlIssues}");
+            Console.WriteLine("In advance thank you for helping me improve this :)");
         }
         #endregion
 
