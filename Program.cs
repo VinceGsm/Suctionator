@@ -1,13 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HtmlAgilityPack;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Suctionator
 {
     class Program
     {
+        // https://www2.tirexo.work/telecharger-series/617578-le-bureau-des-legendes-saison-1-Blu-Ray%201080p-French.html
         private static string urlIssues = "https://github.com/VinceGusmini/Suctionator/issues";
         private static string urlInput;
         private static string mediaName;
@@ -43,7 +47,7 @@ namespace Suctionator
 
             AskInput();
 
-            if (CheckUrl(urlInput)) //GET OK
+            if (CheckUrlAsync(urlInput).Result) //GET OK
             {
                 Console.WriteLine("URL valid"); // TO EDIT / CHANGE
 
@@ -79,7 +83,7 @@ namespace Suctionator
         /// </summary>
         /// <param name="urlInput"></param>
         /// <returns></returns>
-        private static Boolean CheckUrl(string urlInput)
+        private static async Task<bool> CheckUrlAsync(string urlInput)
         {
             if (!urlInput.Contains("tirexo"))
             {
@@ -87,16 +91,21 @@ namespace Suctionator
                 return false;
             }
 
-            Uri urlCheck = new Uri(urlInput);
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlCheck);
-            request.Timeout = 15000;
-
-            HttpWebResponse response;
+            HttpClient httpClient = new HttpClient();
             try
             {
-                response = (HttpWebResponse) request.GetResponse();
-                return response.StatusCode == HttpStatusCode.OK;                
+                string htmlStr = await httpClient.GetStringAsync(urlInput);
+                HtmlDocument htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(htmlStr);
+
+                if(!String.IsNullOrEmpty(htmlDoc.ParsedText))
+                {
+                    Console.WriteLine("Enter the Tirexo URL of your choice :");
+                    return true;
+                }
+
+                log.LogError("Tirexo page is unreachable !");
+                return false;
             }
             catch (Exception ex)
             {
