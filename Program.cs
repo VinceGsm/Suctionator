@@ -17,7 +17,7 @@ namespace Suctionator
         private static string mediaName;
         private static string mediaSeason;
         private static int countTotalLinks;
-        private static int numberLastEpisode;
+        private static int numLastEpisode;
         private static List<string> uptoboxLinks = new List<string>();
         private static List<string> pubLinks = new List<string>();
         private static ILogger log;
@@ -45,8 +45,8 @@ namespace Suctionator
             htmlDoc = new HtmlDocument();
             htmlDoc.OptionFixNestedTags = true;
             //urlInput = String.Empty; 
-            urlInput = "https://www2.tirexo.art/animes/674759-l-attaque-des-titans-WEB-DL%201080p-VOSTFR.html";
-            //urlInput = "https://www2.tirexo.art/telecharger-series/617584-le-bureau-des-legendes-saison-3-Blu-Ray%201080p-French.html";           
+            //urlInput = "https://www2.tirexo.art/animes/674759-l-attaque-des-titans-WEB-DL%201080p-VOSTFR.html";
+            urlInput = "https://www2.tirexo.art/telecharger-series/617584-le-bureau-des-legendes-saison-3-Blu-Ray%201080p-French.html";           
             mediaName = String.Empty;
             mediaSeason = String.Empty;
             countTotalLinks = 0;
@@ -158,7 +158,7 @@ namespace Suctionator
         {
             try
             {
-                int cpt = 0;
+                int numEpisodeTarget = 0;
                 bool firstTime = true;
 
                 //var listtmp = htmlDoc.DocumentNode.Descendants("table").ToList();                
@@ -179,16 +179,17 @@ namespace Suctionator
                     if (firstTime)
                     {
                         firstTime = false;                                                
-                        numberLastEpisode = RecoverNumEpisode(tr);
+                        numLastEpisode = RecoverNumEpisode(tr);
                         pubLinks.Add(RecoverLinkEpisode(tr));
-                        cpt = numberLastEpisode -1;
+                        numEpisodeTarget = numLastEpisode -1;
                     }
-                    else
+
+                    if (RecoverNumEpisode(tr) == numEpisodeTarget)
                     {
-                        cpt--;
+                        pubLinks.Add(RecoverLinkEpisode(tr));
+                        numEpisodeTarget--;
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -202,7 +203,9 @@ namespace Suctionator
             string innerTextClean = node.InnerText.Remove(0, 1); // cut \n
             var splitResult = innerTextClean.Split(' ');
 
-            int.TryParse(splitResult[1], out res);
+            string potentialRes = (splitResult[1].Any(char.IsDigit)) ? splitResult[1] : splitResult[2];
+            
+            int.TryParse(potentialRes, out res);
             return res;
         }
 
