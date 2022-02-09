@@ -13,10 +13,13 @@ namespace Suctionator
     {        
         private static string urlIssues = "https://github.com/VinceGusmini/Suctionator/issues";
         private static string urlInput;
+        private static string baseUrlInput;
         private static string mediaName;
         private static string mediaSeason;
         private static int countTotalLinks;
+        private static int numberLastEpisode;
         private static List<string> uptoboxLinks = new List<string>();
+        private static List<string> pubLinks = new List<string>();
         private static ILogger log;
         private static HtmlDocument htmlDoc; 
         private static HtmlNode nodeLinks; 
@@ -60,9 +63,10 @@ namespace Suctionator
 
                 ExtractInfos();
 
-                GetUptoboxLinks(); // TODO 
+                GetPubLinks();
 
-                Console.WriteLine($"My cells have detected {uptoboxLinks.Count} uptobox links to download for {mediaName} (Saison {mediaSeason}). Is that correct ?"); // TO EDIT / CHANGE                                         
+                Console.WriteLine // TO EDIT / CHANGE                                         
+                    ($"My cells have detected {uptoboxLinks.Count} uptobox links to download in {countTotalLinks} available for {mediaName} (Saison {mediaSeason}). Is that correct ?");
                 Console.WriteLine("'y' for YES || 'n' for NO :"); // TO EDIT / CHANGE
                 char response = Console.ReadLine()[0];
 
@@ -77,16 +81,6 @@ namespace Suctionator
                 WrongInput();
 
             goto Start;            
-        }
-
-        private static void GetUptoboxLinks()
-        {
-            //var listtmp = htmlDoc.DocumentNode.Descendants("table").ToList();                
-            var tmpUptoboxTable = htmlDoc.DocumentNode.Descendants("table").FirstOrDefault(x => x.XPath ==
-                "/html[1]/body[1]/div[3]/div[4]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div[3]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/table[1]");
-            nodeLinks = tmpUptoboxTable.ChildNodes.FirstOrDefault(child => child.Name == "tbody");
-
-            var toto = "";
         }
 
 
@@ -135,7 +129,11 @@ namespace Suctionator
         private static void ExtractInfos()
         {
             try
-            {                                
+            {
+                var offset = urlInput.IndexOf('/');
+                offset = urlInput.IndexOf('/', offset + 1);
+                int endIndex = urlInput.IndexOf('/', offset + 1);
+                
                 var tmpLi = htmlDoc.DocumentNode.Descendants("li").ToList();
                 var tmpH3 = htmlDoc.DocumentNode.Descendants("h3").ToList();
                 var tmpDiv = htmlDoc.DocumentNode.Descendants("div").ToList();
@@ -143,60 +141,76 @@ namespace Suctionator
                 var tmpMediaName = tmpH3.First().InnerText;
                 var tmpSeasonNode = tmpLi.FirstOrDefault(x => x.OuterHtml.StartsWith("<li><strong>Saison</strong> :"));
 
+                baseUrlInput = urlInput.Substring(0, endIndex +1);
                 mediaName = CleanHtmlCode(tmpMediaName);
                 mediaSeason = tmpSeasonNode.InnerHtml.Substring(26, 1);
-
-                //var testo = tmpDiv.FirstOrDefault(x => x.XPath == "/html[1]/body[1]/div[3]/div[4]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div[3]/div[1]/div[1]/div[1]/div[3]/div[1]");
-                // xpath potentiel autre node links :              /html[1]/body[1]/div[3]/div[4]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div[3]/div[1]/div[1]/div[1]/div[3]/div[1]               
-
-                //Console.WriteLine($"TOTAL = "+tmpDiv.Count);
-                //int i = 0;
-                //foreach (var node2merde in tmpDiv)
-                //{                    
-                //    //Console.WriteLine($"#{i} : "+ node2merde.OuterHtml);
-                //    Console.WriteLine("--------");
-                //    Console.WriteLine($"#{i} : " + node2merde.InnerText);
-                //    i++;
-                //}
-
-                //List<string> ids = new List<string>();
-                //foreach (var node in htmlDoc.SelectNodes("//div/@id"))
-                //{
-                //    ids.Add(node.InnerText);
-                //}
-
-                //var htmlNodes = htmlDoc.DocumentNode.SelectNodes("//dataTables_info");
-                //var htmlNodessss = htmlDoc.DocumentNode.SelectNodes("//DataTables_Table_0_info"); 
-                //var htmlNodezdzqdssss = htmlDoc.DocumentNode.SelectNodes("//row");
-
-                //var tmpRow = .DocumentNode.Descendants("row").ToList();
-
-                //var testt = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class,'col-sm-12 col-md-5')]");
-
-                //var divWithAttributes = tmpDiv.Where(x => x.Attributes.Count >= 1).ToList();
-                //var divWithOutAttributes = tmpDiv.Where(x => x.Attributes.Count == 0).ToList();
-
-                //var testtt = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class,'dataTables_info.DataTables_Table_0_info')]");
-                //var testttt = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class,'dataTables_info')]");
-                //var testdttt = htmlDoc.DocumentNode.SelectNodes("//div[contains(@id,'DataTables_Table_0_info')]");
-
-                //var id = "DataTables_Table_0_info";
-                //var query = $"//manifest/item[@id='{id}']";
-                //HtmlNode node = htmlDoc.DocumentNode.SelectSingleNode(query);
-
-                //var tmpSpan = htmlDoc.DocumentNode.Descendants("span").ToList();
-
-                //var tesBIS = htmlDoc.DocumentNode.SelectNodes("//span[contains(@class,'masha_index masha_index112')]");
-
-                ////var titi = htmlDoc.DocumentNode.Descendants("DataTables_Table_0_info");
-                //var ezrtyj = htmlDoc.DocumentNode.Descendants("col-sm-12 col-md-5");
-                //var DONC  = tmpDiv.FirstOrDefault(w => w.OuterHtml.Contains("dataTables_info"));
             }
             catch (Exception ex)
             {
                 log.LogCritical("ExtractInfos: " + ex.Message);
             }
         }
+
+        /// <summary>
+        /// Recover and select pub site links
+        /// </summary>
+        private static void GetPubLinks()
+        {
+            try
+            {
+                int cpt = 0;
+                bool firstTime = true;
+
+                //var listtmp = htmlDoc.DocumentNode.Descendants("table").ToList();                
+                var tmpUptoboxTable = htmlDoc.DocumentNode.Descendants("table").FirstOrDefault(x => x.XPath ==
+                    "/html[1]/body[1]/div[3]/div[4]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div[3]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/table[1]");
+                nodeLinks = tmpUptoboxTable.ChildNodes.FirstOrDefault(child => child.Name == "tbody");
+
+                var lstTr = nodeLinks.ChildNodes.ToList();
+                lstTr.RemoveAt(lstTr.Count -1); //trash
+                lstTr.RemoveAt(lstTr.Count -1); //footer
+                lstTr.Reverse(); //index = reverse upload order
+
+                countTotalLinks = lstTr.Count;                
+
+                //TODO : choose link by size
+                foreach (var tr in lstTr)
+                {
+                    if (firstTime)
+                    {
+                        firstTime = false;                                                
+                        numberLastEpisode = RecoverNumEpisode(tr);
+                        pubLinks.Add(RecoverLinkEpisode(tr));
+                        cpt = numberLastEpisode -1;
+                    }
+                    else
+                    {
+                        cpt--;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.LogCritical("GetUptoboxLinks: " + ex.Message);
+            }
+        }
+
+        private static int RecoverNumEpisode(HtmlNode node)
+        {
+            int res;
+            string innerTextClean = node.InnerText.Remove(0, 1); // cut \n
+            var splitResult = innerTextClean.Split(' ');
+
+            int.TryParse(splitResult[1], out res);
+            return res;
+        }
+
+        private static string RecoverLinkEpisode(HtmlNode node)
+        {
+            return baseUrlInput + "link-" + node.Attributes.FirstOrDefault().Value + ".html";
+        }
+
 
         private static string CleanHtmlCode(string tmpSeasonNumber)
         {
