@@ -5,6 +5,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace Suctionator
         private static ILogger log;
         private static HtmlDocument htmlDoc;         
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             #region Log init
             using var loggerFactory = LoggerFactory.Create(builder =>
@@ -42,40 +43,41 @@ namespace Suctionator
             //log.LogError("Error ");
             //log.LogCritical("Critical ");
             #endregion
-
-            ResetHtmlDoc();
+            
             //urlInput = String.Empty; 
-            urlInput = "https://www2.tirexo.art/animes/674759-l-attaque-des-titans-WEB-DL%201080p-VOSTFR.html";
-            //urlInput = "https://www2.tirexo.art/telecharger-series/617584-le-bureau-des-legendes-saison-3-Blu-Ray%201080p-French.html";           
+            //urlInput = "https://www2.tirexo.art/animes/674759-l-attaque-des-titans-WEB-DL%201080p-VOSTFR.html";
+            urlInput = "https://www2.tirexo.art/telecharger-series/617584-le-bureau-des-legendes-saison-3-Blu-Ray%201080p-French.html";           
             mediaName = String.Empty;
             mediaSeason = String.Empty;
             countTotalLinks = 0;
-            Console.WriteLine("Bienvenue sur Suctionator !");
+            Console.WriteLine("Bienvenue sur Suctionator !");            
 
-        // 1
         Start:
-
+            
             AskInput();
 
-            if (CheckUrlAsync(urlInput).Result) //GET OK
-            {
-                Console.WriteLine("URL valid"); // TO EDIT / CHANGE
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            
+            InitHtmlDoc();
+            if (CheckUrlAsync(urlInput).Result)
+            {                
+                Console.WriteLine("URL valid");
+                                
+                ExtractInfos();
 
-                //ExtractInfos();
+                GetPubLinks();
 
-                //GetPubLinks();
+                GetUptoboxLinks();
 
-                GetUptoboxLinksAsync();
+                stopWatch.Stop();
 
-                Console.WriteLine // TO EDIT / CHANGE                                         
-                    ($"My cells have detected {uptoboxLinks.Count} uptobox links to download in {countTotalLinks} available for {mediaName} (Saison {mediaSeason}). Is that correct ?");
-                Console.WriteLine("'y' for YES || 'n' for NO :"); // TO EDIT / CHANGE
-                char response = Console.ReadLine()[0];
-
-                if (response == 'y') // OK
-                {
-                    Console.WriteLine("TOUT EST CARRE");
-                }
+                Console.WriteLine("*** RAPPORT : ***");
+                Console.WriteLine($"Execution time = {stopWatch.Elapsed.Minutes}m");                
+                Console.WriteLine($"{uptoboxLinks.Count} Uptobox links to download in {countTotalLinks} analized on the page");
+                Console.WriteLine($"For {mediaName} (Saison {mediaSeason}).");
+                
+                // GUI
 
                 AskTicketIssue();
             }
@@ -137,7 +139,7 @@ namespace Suctionator
                 var offset = urlInput.IndexOf('/');
                 offset = urlInput.IndexOf('/', offset + 1);
                 int endIndex = urlInput.IndexOf('/', offset + 1);
-                
+
                 var tmpLi = htmlDoc.DocumentNode.Descendants("li").ToList();
                 var tmpH3 = htmlDoc.DocumentNode.Descendants("h3").ToList();
                 var tmpDiv = htmlDoc.DocumentNode.Descendants("div").ToList();
@@ -145,7 +147,7 @@ namespace Suctionator
                 var tmpMediaName = tmpH3.First().InnerText;
                 var tmpSeasonNode = tmpLi.FirstOrDefault(x => x.OuterHtml.StartsWith("<li><strong>Saison</strong> :"));
 
-                baseUrlInput = urlInput.Substring(0, endIndex +1);
+                baseUrlInput = urlInput.Substring(0, endIndex + 1);
                 mediaName = CleanHtmlCode(tmpMediaName);
                 mediaSeason = tmpSeasonNode.InnerHtml.Substring(26, 1);
             }
@@ -155,128 +157,38 @@ namespace Suctionator
             }
         }
 
-        private static async Task GetUptoboxLinksAsync()
+        private static void GetUptoboxLinks()
         {
-
-            //foreach (string pubLink in pubLinks)
-            //{
-                //ResetHtmlDoc();
-            //}
-            string test = "https://www2.tirexo.art/link-10457599.html";
-            ResetHtmlDoc();
-
-            
-            try
+            foreach (string pubLink in pubLinks)
             {
-                //HttpClient httpClient = new HttpClient();
-                //string htmlStr = await httpClient.GetStringAsync(test);
+                try
+                {
+                    IWebDriver browserDriver = new ChromeDriver();
+                    browserDriver.Navigate().GoToUrl(pubLink);
+                    browserDriver.Manage().Window.Maximize();
 
-                //htmlDoc.LoadHtml(htmlStr);
+                    Actions actionProvider = new Actions(browserDriver);
 
-                //var btn = htmlDoc.GetElementbyId("sumbit_btn");
+                    var safeZone = browserDriver.FindElement(By.Id("kt_subheader"));
+                    var btnCaptcha = browserDriver.FindElement(By.Id("captcha"));
+                    var btnValidate = browserDriver.FindElement(By.Id("sumbit_btn"));
 
-                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SCRAPY
-                ///
-                //ScrapingBrowser browser = new ScrapingBrowser();
-                //browser.AllowAutoRedirect = true;
-                //browser.AllowMetaRedirect = true;
-                //ResetHtmlDoc();
-                //WebPage webPage = await browser.NavigateToPageAsync(new Uri(test), HttpVerb.Get, "", "text/html; charset=UTF-8");
+                    actionProvider.MoveToElement(btnCaptcha).Build().Perform();
+                    actionProvider.Click(btnCaptcha).Build().Perform();
+                    actionProvider.MoveToElement(btnValidate).Build().Perform();
+                    actionProvider.Click(btnValidate).Build().Perform();
 
-                //htmlDoc.LoadHtml(webPage.Content);
+                    var h3Result = browserDriver.FindElements(By.TagName("h3")).ToList();
+                    string htmlText = h3Result.First(x => x.Text.Contains("uptobox.com/")).Text;
+                    string link = htmlText[7..]; // ==  htmlText.Substring(7);                     
+                    uptoboxLinks.Add(link.Trim());
 
-                //var h3Init = htmlDoc.DocumentNode.Descendants("h3").ToList();
-
-                //var form = webPage.FindFormById("get_link");
-
-                //form.Method = HttpVerb.Post;
-
-                ////form["getlink"] = "0";
-
-                ////var etet = form.FormFields;
-
-                //WebPage webPageAfter = form.Submit();
-
-                //htmlDoc.LoadHtml(webPageAfter.Content);
-
-                //var h3After = htmlDoc.DocumentNode.Descendants("h3").ToList();
-
-                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// PUPPPP
-
-
-                //var connectOptions = new ConnectOptions()
-                //{
-                //    BrowserWSEndpoint = "$wss://chrome.browserless.io/"
-                //};
-
-                //using (var browser = await Puppeteer.ConnectAsync(connectOptions))
-                //{
-                //    Page page = await browser.NewPageAsync();
-                //    await page.GoToAsync(test);
-
-                //    var toto = page.Frames;
-
-                //    await page.ClickAsync("");
-                //}
-
-                //RevisionInfo toto = await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-
-                //Browser browser = await Puppeteer.LaunchAsync(new LaunchOptions
-                //{
-                //    Headless = true
-                //});
-
-
-                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Simple
-
-                //var browser = new Browser();
-
-                //// log the browser request/response data to files so we can interrogate them in case of an issue with our scraping
-                //browser.RequestLogged += OnBrowserMessageLogged;
-                //browser.MessageLogged += new Action<Browser, string>(OnBrowserMessageLogged);
-
-                //// we'll fake the user agent for websites that alter their content for unrecognised browsers
-                //browser.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.10 (KHTML, like Gecko) Chrome/8.0.552.224 Safari/534.10";
-
-                //browser.Navigate(test);
-
-                ////var toto = browser.Select("geetest_wait"); 
-                ////var todddto = browser.Select(".geetest_wait"); 
-                ////var todto = browser.Select("div.geetest_wait"); 
-
-                ////var toto = browser.FindElements(By.ClassName("question-hyperlink"));
-
-                //var firstBtn = browser.Find("geetest_radar_tip");                
-                //var secondBtn = browser.Find("sumbit_btn");
-
-                //var clikRes = firstBtn.Click();
-                //var resFinal = secondBtn.Click();
-
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Selenium
-                IWebDriver browserDriver = new ChromeDriver();
-                browserDriver.Navigate().GoToUrl(test);
-                browserDriver.Manage().Window.Maximize();
-
-                Actions actionProvider = new Actions(browserDriver);
-
-                var safeZone = browserDriver.FindElement(By.Id("kt_subheader"));
-                var btnCaptcha = browserDriver.FindElement(By.Id("captcha"));
-                var btnValidate = browserDriver.FindElement(By.Id("sumbit_btn"));
-
-                actionProvider.MoveToElement(btnCaptcha).Build().Perform();
-                actionProvider.DoubleClick(btnCaptcha).Build().Perform();
-                actionProvider.Click(btnValidate).Build().Perform();
-
-                var h3Result = browserDriver.FindElements(By.TagName("h3")).ToList();
-                string htmlText = h3Result.First(x => x.Text.Contains("uptobox.com/")).Text;                
-                string link = htmlText[7..]; // ==  htmlText.Substring(7); 
-
-                browserDriver.Quit();
-                uptoboxLinks.Add(link.Trim());                
-            }
-            catch (Exception ex)
-            {
-                log.LogCritical(ex.Message);                
+                    browserDriver.Quit();
+                }
+                catch (Exception ex)
+                {
+                    log.LogCritical(ex.Message);
+                }
             }
         }
 
@@ -286,8 +198,7 @@ namespace Suctionator
             {
                 int numEpisodeTarget = 0;
                 bool firstTime = true;
-
-                //var listtmp = htmlDoc.DocumentNode.Descendants("table").ToList();                
+                          
                 var tmpPubTable = htmlDoc.DocumentNode.Descendants("table").FirstOrDefault(x => x.XPath ==
                     "/html[1]/body[1]/div[3]/div[4]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div[3]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/table[1]");
                 HtmlNode nodePubLinks = tmpPubTable.ChildNodes.FirstOrDefault(child => child.Name == "tbody");
@@ -343,11 +254,11 @@ namespace Suctionator
 
         private static string CleanHtmlCode(string tmpSeasonNumber)
         {
-            tmpSeasonNumber = tmpSeasonNumber.Replace("&#039;", "'");
+            tmpSeasonNumber = tmpSeasonNumber.Replace("&#039;", "'");            
             return tmpSeasonNumber;
         }
 
-        private static void ResetHtmlDoc()
+        private static void InitHtmlDoc()
         {
             htmlDoc = new HtmlDocument();
             htmlDoc.OptionFixNestedTags = true;
