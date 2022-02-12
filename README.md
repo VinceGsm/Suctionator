@@ -1,8 +1,8 @@
 # Suctionator
 
-Fatigué de multiplié vos cliks ? \n
-Marre des copier/coller à répétition ? \n
-Suctionator fait tout le boulot pour vous ! \n
+Fatigué de multiplié vos cliks ?   
+Marre des copier/coller à répétition ?   
+Suctionator fait tout le boulot pour vous !    
 
 - Choisissez la série, la saison ainsi que la qualité sur Tirexo
 - Copier l'URL et renseignez la dans Suctionator
