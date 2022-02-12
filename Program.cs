@@ -51,8 +51,6 @@ namespace Suctionator
             mediaSeason = String.Empty;
             countTotalLinks = 0;
             Console.WriteLine("Bienvenue sur Suctionator !");            
-
-        Start:
             
             AskInput();
 
@@ -60,6 +58,7 @@ namespace Suctionator
             stopWatch.Start();
             
             InitHtmlDoc();
+
             if (CheckUrlAsync(urlInput).Result)
             {                
                 Console.WriteLine("URL valid");
@@ -83,12 +82,7 @@ namespace Suctionator
             }
             else
                 WrongInput();
-
-            goto Start;
         }
-
-
-
 
         #region Brain
 
