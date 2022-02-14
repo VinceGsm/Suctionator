@@ -50,6 +50,11 @@ namespace Suctionator
             mediaName = String.Empty;
             mediaSeason = String.Empty;
             countTotalLinks = 0;
+
+            // GUI
+
+
+
             Console.WriteLine("Bienvenue sur Suctionator !");            
             
             AskInput();
@@ -74,9 +79,7 @@ namespace Suctionator
                 Console.WriteLine("*** RAPPORT : ***");
                 Console.WriteLine($"Execution time = {stopWatch.Elapsed.Minutes}m");                
                 Console.WriteLine($"{uptoboxLinks.Count} Uptobox links to download in {countTotalLinks} analized on the page");
-                Console.WriteLine($"For {mediaName} (Saison {mediaSeason}).");
-                
-                // GUI
+                Console.WriteLine($"For {mediaName} (Saison {mediaSeason}).");                
 
                 AskTicketIssue();
             }
@@ -277,6 +280,5 @@ namespace Suctionator
             Console.WriteLine("In advance thank you for helping me improve this :)");
         }
         #endregion
-
     }
 }
