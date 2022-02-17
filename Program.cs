@@ -45,11 +45,7 @@ namespace Suctionator
                     .AddFilter("NonHostConsoleApp.Program", Microsoft.Extensions.Logging.LogLevel.Debug)
                     .AddConsole();
             });
-            log = loggerFactory.CreateLogger<Program>();
-            //log.LogInformation("Info ");
-            //log.LogWarning("Warning ");
-            //log.LogError("Error ");
-            //log.LogCritical("Critical ");
+            log = loggerFactory.CreateLogger<Program>();            
             #endregion
 
             _uptoboxToken = Environment.GetEnvironmentVariable("Uptobox_Token");
@@ -61,15 +57,7 @@ namespace Suctionator
             var topLevel = Application.Top;
 
             // Creates the top-level window to show
-            var homeWindow = new Window("Esc pour quitter")
-            {
-                X = 0,
-                Y = 1, // Leave one row for the toplevel menu
-
-                // automatically resize without manual intervention
-                Width = Dim.Fill(-5),
-                Height = Dim.Fill(-5)
-            };
+            var homeWindow = CreateHomeWindow();                                
 
             SetupHome(homeWindow);            
             
@@ -80,7 +68,7 @@ namespace Suctionator
                     new MenuItem ("Quitter", "", () => { if (Quit()) Application.RequestStop(); } )
                 }),
                 new MenuBarItem ("Automatique", new MenuItem [] {
-                    new MenuItem ("Special One Piece", "", null)
+                    new MenuItem ("Special One Piece", "", () => Soon())
                 }),
                 new MenuBarItem ("", new MenuItem [] {}),
                 new MenuBarItem ("", new MenuItem [] {})
@@ -108,7 +96,26 @@ namespace Suctionator
             Application.Run();                                                                                                                                  
         }
 
+
         #region Front_end
+        private static void Soon()
+        {
+            MessageBox.ErrorQuery(50, 7, "Prochainement", "Cette fonctionnalité sera disponible dans la Version 2.0", "J'attends");
+        }
+
+        private static Window CreateHomeWindow()
+        {
+            return new Window("Esc pour quitter")
+            {
+                X = 0,
+                Y = 1, // Leave one row for the toplevel menu
+
+                // automatically resize without manual intervention
+                Width = Dim.Fill(-5),
+                Height = Dim.Fill(-5)
+            };
+        }
+
         private static void UptoboxConnexion()
         {
             var okBtn = new Button(25, 14, "Ok");
@@ -181,7 +188,8 @@ namespace Suctionator
         {
             stopWatch.Start();
 
-            if (CheckUrlAsync(entryLink.Text.ToString()).Result)
+            urlInput = entryLink.Text.ToString();
+            if (CheckUrlAsync(urlInput).Result)
             {                
                 ExtractInfos();
                 MessageBox.Query(50, 5, "1/3 : Extracting data done", $"Aspiration pour {mediaName} (Saison {mediaSeason})", "Suivant");
@@ -229,8 +237,8 @@ namespace Suctionator
         }
         #endregion
 
-        #region Back_end    
 
+        #region Back_end    
         /// <summary>
         /// Request the target url to see if it's online
         /// </summary>
@@ -264,7 +272,6 @@ namespace Suctionator
             }
         }
 
-
         /// <summary>
         /// Extract media name + media season
         /// </summary>
@@ -294,18 +301,12 @@ namespace Suctionator
         }
 
         private static void GetUptoboxLinks()
-        {
+        {                       
             foreach (string pubLink in pubLinks)
             {
+                IWebDriver browserDriver = CreateChromeBrowser();
                 try
                 {
-                    // No log --> conflicts GUI
-                    ChromeDriverService silentService = ChromeDriverService.CreateDefaultService();
-                    silentService.EnableVerboseLogging = false;
-                    silentService.SuppressInitialDiagnosticInformation = true;
-                    silentService.HideCommandPromptWindow = true;
-
-                    IWebDriver browserDriver = new ChromeDriver(silentService);                              
                     browserDriver.Manage().Window.Maximize();
                     browserDriver.Navigate().GoToUrl(pubLink);                    
 
@@ -333,10 +334,22 @@ namespace Suctionator
                 }
                 catch (Exception ex)
                 {
+                    browserDriver.Quit();
                     log.LogCritical(ex.Message);
                 }
             }
             result = string.Join(Environment.NewLine, uptoboxLinks);
+        }
+
+        private static IWebDriver CreateChromeBrowser()
+        {
+            // No log --> conflicts GUI
+            ChromeDriverService silentService = ChromeDriverService.CreateDefaultService();
+            silentService.EnableVerboseLogging = false;
+            silentService.SuppressInitialDiagnosticInformation = true;
+            silentService.HideCommandPromptWindow = true;
+
+            return new ChromeDriver(silentService);
         }
 
         private static void GetPubLinks()
@@ -397,7 +410,6 @@ namespace Suctionator
         {
             return baseUrlInput + "link-" + node.Attributes.FirstOrDefault().Value + ".html";
         }
-
 
         private static string CleanHtmlCode(string tmpSeasonNumber)
         {
