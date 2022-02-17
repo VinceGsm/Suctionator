@@ -3,6 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <Authors>https://github.com/VinceGusmini</Authors>
+    <Description>https://github.com/VinceGusmini/Suctionator</Description>
+    <Copyright>https://github.com/VinceGusmini/Suctionator</Copyright>
+    <PackageId>Suctionator_V.1</PackageId>
+    <PackageReleaseNotes />
   </PropertyGroup>
 
   <ItemGroup>
