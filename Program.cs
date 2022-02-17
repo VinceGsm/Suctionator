@@ -9,23 +9,31 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Terminal.Gui;
 
 namespace Suctionator
 {
     class Program
     {        
         private static string urlIssues = "https://github.com/VinceGusmini/Suctionator/issues";
-        private static string urlInput;
-        private static string baseUrlInput;
-        private static string mediaName;
-        private static string mediaSeason;
-        private static int countTotalLinks;
-        private static int numLastEpisode;
+        private static string urlInput = string.Empty;
+        private static string result = string.Empty;
+        private static string baseUrlInput = string.Empty;
+        private static string mediaName = string.Empty;
+        private static string mediaSeason = string.Empty;
+        private static int countTotalLinks = 0;
+        private static int numLastEpisode = 0;
         private static List<string> uptoboxLinks = new List<string>();
         private static List<string> pubLinks = new List<string>();
         private static ILogger log;
-        private static HtmlDocument htmlDoc;         
+        private static HtmlDocument htmlDoc;
+        private static string _uptoboxToken;         
+        private static TextField entryGetToken;
+        private static TextField entryLink;
+        private static Stopwatch stopWatch;
 
+
+        [STAThread]
         static async Task Main(string[] args)
         {
             #region Log init
@@ -43,51 +51,185 @@ namespace Suctionator
             //log.LogError("Error ");
             //log.LogCritical("Critical ");
             #endregion
-            
-            //urlInput = String.Empty; 
-            //urlInput = "https://www2.tirexo.art/animes/674759-l-attaque-des-titans-WEB-DL%201080p-VOSTFR.html";
-            urlInput = "https://www2.tirexo.art/telecharger-series/617584-le-bureau-des-legendes-saison-3-Blu-Ray%201080p-French.html";           
-            mediaName = String.Empty;
-            mediaSeason = String.Empty;
-            countTotalLinks = 0;
+
+            _uptoboxToken = Environment.GetEnvironmentVariable("Uptobox_Token");
+            stopWatch = new Stopwatch();
 
             // GUI
+            Application.Init();
+           
+            var topLevel = Application.Top;
 
+            // Creates the top-level window to show
+            var homeWindow = new Window("Esc pour quitter")
+            {
+                X = 0,
+                Y = 1, // Leave one row for the toplevel menu
 
+                // automatically resize without manual intervention
+                Width = Dim.Fill(-5),
+                Height = Dim.Fill(-5)
+            };
 
-            Console.WriteLine("Bienvenue sur Suctionator !");            
+            SetupHome(homeWindow);            
             
-            AskInput();
+            var menuBarItem = new MenuBarItem[] {
+                new MenuBarItem ("Home", new MenuItem [] {
+                    new MenuItem ("Suctionator", "", () => SetupHome(homeWindow)),
+                    new MenuItem ("Résultat", "", () => GiveResult()),
+                    new MenuItem ("Quitter", "", () => { if (Quit()) Application.RequestStop(); } )
+                }),
+                new MenuBarItem ("Automatique", new MenuItem [] {
+                    new MenuItem ("Special One Piece", "", null)
+                }),
+                new MenuBarItem ("", new MenuItem [] {}),
+                new MenuBarItem ("", new MenuItem [] {})
+            };
 
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
+            if (string.IsNullOrEmpty(_uptoboxToken))
+            {
+                menuBarItem.SetValue(new MenuBarItem("Uptobox", new MenuItem[] {
+                    new MenuItem ("Connexion", "", () => UptoboxConnexion())                   
+                    }
+                ), 2);
+            }
+
+            menuBarItem.SetValue(new MenuBarItem("Help", new MenuItem[] {                    
+                    new MenuItem ("Get help", "", () => GetHelp() ) 
+                    }
+            ), 3);
+
+            var menuBar = new MenuBar(menuBarItem);            
             
+            topLevel.Add(menuBar, homeWindow);
+
             InitHtmlDoc();
 
-            if (CheckUrlAsync(urlInput).Result)
-            {                
-                Console.WriteLine("URL valid");
-                                
-                ExtractInfos();
-
-                GetPubLinks();
-
-                GetUptoboxLinks();
-
-                stopWatch.Stop();
-
-                Console.WriteLine("*** RAPPORT : ***");
-                Console.WriteLine($"Execution time = {stopWatch.Elapsed.Minutes}m");                
-                Console.WriteLine($"{uptoboxLinks.Count} Uptobox links to download in {countTotalLinks} analized on the page");
-                Console.WriteLine($"For {mediaName} (Saison {mediaSeason}).");                
-
-                AskTicketIssue();
-            }
-            else
-                WrongInput();
+            Application.Run();                                                                                                                                  
         }
 
-        #region Brain
+        #region Front_end
+        private static void UptoboxConnexion()
+        {
+            var okBtn = new Button(25, 14, "Ok");
+            okBtn.Clicked += new Action(OkPressedUptobox);
+
+            var cancelBtn = new Button(3, 14, "Annuler");
+            cancelBtn.Clicked += () => Application.RequestStop();
+
+            var dialogGetToken = new Dialog("Token Uptobox :", 60, 18, okBtn, cancelBtn);
+
+            entryGetToken = new TextField()
+            {
+                X = 1,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = 1
+            };
+            dialogGetToken.Add(entryGetToken);
+
+            Application.Run(dialogGetToken);
+        }
+
+        private static void OkPressedUptobox()
+        {
+            string input = entryGetToken.Text.ToString();
+            if (input.Length == 37)
+            {
+                Environment.SetEnvironmentVariable("Uptobox_Token", input);
+                _uptoboxToken = input;
+                MessageBox.Query(50, 7, "Info", "Token valide", "Ok");
+
+                Application.RequestStop();
+            }
+            else
+                MessageBox.ErrorQuery(50, 7, "Error", "Bad Uptobox_Token", "Ok");
+        }
+
+        private static void SetupHome(View home)
+        {
+            var label = new Label("(Tirexo) URL de la saison :")
+            {
+                X = Pos.Center(),
+                Y = Pos.Center() - 10,
+                Width = 30,
+                Height = 1
+            };
+
+            entryLink = new TextField("")            
+            {
+                X = label.X,
+                Y = label.Y + 2,
+                Width = 110,
+                Height = 1
+            };
+
+            var btn = new Button("GO !")
+            {
+                X = entryLink.X,
+                Y = entryLink.Y + 2,
+                Width = 10,
+                Height = 1
+            };
+
+            btn.Clicked += new Action(GoClicked);
+
+            home.Add(label, entryLink, btn);
+        }
+
+        private static void GoClicked()
+        {
+            stopWatch.Start();
+
+            if (CheckUrlAsync(entryLink.Text.ToString()).Result)
+            {                
+                ExtractInfos();
+                MessageBox.Query(50, 5, "1/3 : Extracting data done", $"Aspiration pour {mediaName} (Saison {mediaSeason})", "Suivant");
+
+                GetPubLinks();
+                MessageBox.ErrorQuery(50, 5, "Links 1/2 : pub done", "NE TOUCHEZ PLUS A RIEN JUSQU'AU PROCHAIN MESSAGE", "Compris");
+
+                GetUptoboxLinks();
+                stopWatch.Stop();
+                MessageBox.Query(50, 5, "Links 2/2 : Uptobox", $"Etape 3/3 ! Aspiration effectuée en {stopWatch.Elapsed.Minutes}m", "OK");
+                MessageBox.Query(50, 5, "Informations", $"Une liste de {uptoboxLinks.Count} (sur {countTotalLinks} analysé)" +
+                    " liens Uptobox vous attendent dans le menu \"Résultat\" ", "Super !");                                                           
+            }
+        }
+
+        private static void GiveResult()
+        {
+            if (!string.IsNullOrEmpty(result))
+            {
+                bool success = Clipboard.TrySetClipboardData(result);
+                if (success)
+                    MessageBox.Query(50, 5, "Résultat récupéré", "La liste des liens Upotobox a été copié dans votre clipboard !", "Merci");
+                else
+                    MessageBox.ErrorQuery(50, 5, "ERROR", "Impossible de récupéré les résultats", "Ok");
+            }
+            else
+                MessageBox.ErrorQuery(50, 5, "ERROR", "Aucun résultat à récupérer", "Ok");
+        }
+
+        private static void GetHelp()
+        {
+            bool success = Clipboard.TrySetClipboardData(urlIssues);
+            if (success)
+                MessageBox.Query(50, 5, "Url du projet récupéré", "En cas de problème merci de créer un post sur Github: le lien a directement été collé dans votre clipbopard", "Ok");
+            else
+                MessageBox.ErrorQuery(50, 5, "ERROR", "Impossible de récupéré le lien du projet", "Ok");
+
+            MessageBox.Query(50, 5, "Message du dev", "La remontée de bug aide à améliorer ce projet :)", "<3");
+        }
+
+        private static bool Quit()
+        {
+            var n = MessageBox.Query(50, 5, "Quitter", "Voulez-vous vraiment quitter l'application", "Oui", "Non");
+            return n == 0;
+        }
+        #endregion
+
+        #region Back_end    
 
         /// <summary>
         /// Request the target url to see if it's online
@@ -98,24 +240,21 @@ namespace Suctionator
         {
             if (!urlInput.Contains("tirexo"))
             {
-                log.LogWarning("This is not Tirexo URL") ;                
+                MessageBox.ErrorQuery(50, 7, "Error", "Merci de fournir un URL de Tirexo", "Ok");
                 return false;
             }
 
             HttpClient httpClient = new HttpClient();
             try
             {
-                string htmlStr = await httpClient.GetStringAsync(urlInput);
+                string htmlStr = httpClient.GetStringAsync(urlInput).Result;
                 
                 htmlDoc.LoadHtml(htmlStr);
 
-                if(!String.IsNullOrEmpty(htmlDoc.ParsedText))
-                {
-                    Console.WriteLine("Enter the Tirexo URL of your choice :");
+                if(!String.IsNullOrEmpty(htmlDoc.ParsedText))                                    
                     return true;
-                }
 
-                log.LogError("Tirexo page is unreachable !");
+                MessageBox.ErrorQuery(50, 7, "Error", "Impossible d'accéder à la page", "Ok");
                 return false;
             }
             catch (Exception ex)
@@ -160,22 +299,32 @@ namespace Suctionator
             {
                 try
                 {
-                    IWebDriver browserDriver = new ChromeDriver();
-                    browserDriver.Navigate().GoToUrl(pubLink);
+                    // No log --> conflicts GUI
+                    ChromeDriverService silentService = ChromeDriverService.CreateDefaultService();
+                    silentService.EnableVerboseLogging = false;
+                    silentService.SuppressInitialDiagnosticInformation = true;
+                    silentService.HideCommandPromptWindow = true;
+
+                    IWebDriver browserDriver = new ChromeDriver(silentService);                              
                     browserDriver.Manage().Window.Maximize();
+                    browserDriver.Navigate().GoToUrl(pubLink);                    
 
                     Actions actionProvider = new Actions(browserDriver);
 
-                    var safeZone = browserDriver.FindElement(By.Id("kt_subheader"));
+                    var h3Result = browserDriver.FindElements(By.TagName("h3")).ToList();                    
                     var btnCaptcha = browserDriver.FindElement(By.Id("captcha"));
                     var btnValidate = browserDriver.FindElement(By.Id("sumbit_btn"));
 
-                    actionProvider.MoveToElement(btnCaptcha).Build().Perform();
-                    actionProvider.Click(btnCaptcha).Build().Perform();
-                    actionProvider.MoveToElement(btnValidate).Build().Perform();
-                    actionProvider.Click(btnValidate).Build().Perform();
+                    var safeZone = h3Result.First(x => x.Text.Contains("Statistiques"));
+                    actionProvider.MoveToElement(safeZone).Build().Perform();
 
-                    var h3Result = browserDriver.FindElements(By.TagName("h3")).ToList();
+                    actionProvider.MoveToElement(btnCaptcha).Build().Perform();
+                    actionProvider.Click(btnCaptcha).Build().Perform();                    
+
+                    actionProvider.MoveToElement(btnValidate).Build().Perform();
+                    actionProvider.Click(btnValidate).Build().Perform();                    
+
+                    h3Result = browserDriver.FindElements(By.TagName("h3")).ToList();
                     string htmlText = h3Result.First(x => x.Text.Contains("uptobox.com/")).Text;
                     string link = htmlText[7..]; // ==  htmlText.Substring(7);                     
                     uptoboxLinks.Add(link.Trim());
@@ -187,6 +336,7 @@ namespace Suctionator
                     log.LogCritical(ex.Message);
                 }
             }
+            result = string.Join(Environment.NewLine, uptoboxLinks);
         }
 
         private static void GetPubLinks()
@@ -262,23 +412,10 @@ namespace Suctionator
         }
         #endregion
 
-        #region Console
-        private static void AskInput()
-        {
-            Console.WriteLine("Enter the Tirexo URL of your choice :");
-            //urlInput = Console.ReadLine();
-        }
-
-        private static void WrongInput()
-        {
-            Console.WriteLine("Wrong input, let's retry !");
-        }
-
-        private static void AskTicketIssue()
-        {
-            Console.WriteLine($"Mission Failed... Please go open a ticket issue with your requested url in : {urlIssues}");
-            Console.WriteLine("In advance thank you for helping me improve this :)");
-        }
-        #endregion
+        ///////////////////////////////////////////////////////////////////////////////////////
+        /*
+        "https://uptobox.com/api/link?token=[USR_TOKEN]&file_code=[FILE_CODE]";
+        */
+        /////////////////////////////////////////////////////////////////////////////////// 
     }
 }
