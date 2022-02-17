@@ -1,9 +1,11 @@
 # Suctionator
 
+
 Fatigué de multiplié vos cliks ?   
 Marre des copier/coller à répétition ?   
 Suctionator fait tout le boulot pour vous !    
 
+![image](https://user-images.githubusercontent.com/29730840/154568959-9123d496-1420-4ce4-991a-df6338623529.png)
 
 Tutoriel d'utilisation
 --------
@@ -25,16 +27,17 @@ Si vous possédez un compte Uptobox, pour ne pas à avoir à renseigner vos IDs 
 - Renseignez votre token dans sa value : ![image](https://user-images.githubusercontent.com/29730840/154545212-23f90f91-5101-414d-91b1-b408f8b65e06.png)
 
 
-//
+Thanks to
+-------------
+
+- [Html Agility Pack](https://html-agility-pack.net/) : ![image](https://user-images.githubusercontent.com/29730840/154550879-6a566478-7a5f-4f07-88b2-6ba2c1fec198.png)
+
+- [Gui.cs](https://github.com/migueldeicaza/gui.cs) : ![image](https://user-images.githubusercontent.com/29730840/154568523-bb2215a1-ee74-4cd1-bf54-5df8a5782a1e.png)
+- [Selenium](https://www.selenium.dev/) : ![image](https://user-images.githubusercontent.com/29730840/154550836-6d2aeeb5-8b27-4b79-8123-32833d2b187d.png)
 
 
-using : ![image](https://user-images.githubusercontent.com/29730840/154550836-6d2aeeb5-8b27-4b79-8123-32833d2b187d.png)
-+ ![image](https://user-images.githubusercontent.com/29730840/154550879-6a566478-7a5f-4f07-88b2-6ba2c1fec198.png)
 
-
-
-
-
+------------
 
 
 Designed and coded by [Vince](https://github.com/VinceGusmini).
