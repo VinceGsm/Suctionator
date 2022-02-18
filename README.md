@@ -7,6 +7,14 @@ Suctionator fait tout le boulot pour vous !
 
 ![image](https://user-images.githubusercontent.com/29730840/154568959-9123d496-1420-4ce4-991a-df6338623529.png)
 
+
+## Roadmap
+
+- [x] Génération liste liens uptobox *(v1.0)*
+- [ ] Download liste *(v2.0)*
+- [ ] Download épisode + récent  *(v2.1)*
+
+
 Tutoriel d'utilisation
 --------
 

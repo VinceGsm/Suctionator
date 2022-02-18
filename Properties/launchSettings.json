@@ -1,7 +1,9 @@
 {
   "profiles": {
     "Suctionator": {
-      "commandName": "Executable"
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\vgusm\\source\\repos\\Suctionator\\bin\\Debug\\net5.0\\Suctionator.exe",
+      "nativeDebugging": true
     }
   }
 }
