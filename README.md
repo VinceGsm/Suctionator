@@ -1,11 +1,10 @@
-# Suctionator
+# Suctionator     
 
+![image](https://user-images.githubusercontent.com/29730840/155033088-a3a2ba02-d5f5-45a4-a93a-bc8d4cc925fa.png)
 
-Fatigué de multiplié vos cliks ?   
-Marre des copier/coller à répétition ?   
-Suctionator fait tout le boulot pour vous !    
-
-![image](https://user-images.githubusercontent.com/29730840/154568959-9123d496-1420-4ce4-991a-df6338623529.png)
+<h3 align="center">Fatigué de multiplié vos cliks ?<h3/>
+<h3 align="center">Marre des copier/coller à répétition ?<h3/>
+<h3 align="center">Suctionator fait tout le boulot pour vous !<h3/>
 
 
 ## Roadmap
@@ -20,14 +19,20 @@ Tutoriel d'utilisation
 
 - Choisissez la série, la saison ainsi que la qualité sur Tirexo
 - Copiez l'URL et renseignez la dans Suctionator
-- Récupérez la liste des liens de téléchargement [Uptobox](https://uptobox.com/) dans "Home" : "Résultat"
-- Renseignez la liste résultat dans un 'Download management tool' comme [JDownloader](https://jdownloader.org/)
+- Suivez les instructions de l'application
+
+Vous pouvez maintenant au choix : 
+- Téléchargez ces épisodes grâce à Suctionator 
+
+ou
+- Récupérez les liens de téléchargement Uptobox dans "Home" : "Résultat" puis les coller dans un 'Download management tool' comme [JDownloader](https://jdownloader.org/)
 
 
 Tutoriel Configuration (Version 2.+)
 -------------
+⚠️ Si vous ne possédez pas de compte Uptobox *Premium* la foncionnalité de téléchargement ne fonctionnera pas⚠️
 
-Si vous possédez un compte Uptobox, pour ne pas à avoir à renseigner vos IDs à chaque utilisation :
+ℹ️ Pour ne pas à avoir à renseigner vos IDs à chaque utilisation :
 - Copiez votre token Uptobox à partir de [votre page](https://uptobox.com/my_account) : ![image](https://user-images.githubusercontent.com/29730840/154539617-3420b469-4f88-4ba2-aac4-2429182ce3ce.png)
 
 - Sur votre PC exécutez : ![image](https://user-images.githubusercontent.com/29730840/154540387-f9932392-b8fe-4d91-9cb0-99ebbc3b8cf4.png)
