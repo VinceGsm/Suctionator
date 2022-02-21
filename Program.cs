@@ -14,10 +14,11 @@ using Terminal.Gui;
 namespace Suctionator
 {
     class Program
-    {        
-        private static string urlIssues = "https://github.com/VinceGusmini/Suctionator/issues";
+    {
+        private static string _version = "Version 1.0.2";
+        private static string urlIssues = "https://github.com/VinceGusmini/Suctionator/issues";         
         private static string urlInput = string.Empty;
-        private static string result = string.Empty;
+        private static string resultUptobox = string.Empty;
         private static string baseUrlInput = string.Empty;
         private static string mediaName = string.Empty;
         private static string mediaSeason = string.Empty;
@@ -105,7 +106,7 @@ namespace Suctionator
 
         private static Window CreateHomeWindow()
         {
-            return new Window("Esc pour quitter")
+            return new Window(_version)
             {
                 X = 0,
                 Y = 1, // Leave one row for the toplevel menu
@@ -186,6 +187,7 @@ namespace Suctionator
 
         private static void GoClicked()
         {
+            ResetResult();
             stopWatch.Start();
 
             urlInput = entryLink.Text.ToString();
@@ -207,9 +209,9 @@ namespace Suctionator
 
         private static void GiveResult()
         {
-            if (!string.IsNullOrEmpty(result))
-            {
-                bool success = Clipboard.TrySetClipboardData(result);
+            if (!string.IsNullOrEmpty(resultUptobox))
+            {                
+                bool success = Clipboard.TrySetClipboardData(resultUptobox);
                 if (success)
                     MessageBox.Query(50, 5, "Résultat récupéré", "La liste des liens Upotobox a été copié dans votre clipboard !", "Merci");
                 else
@@ -217,6 +219,11 @@ namespace Suctionator
             }
             else
                 MessageBox.ErrorQuery(50, 5, "ERROR", "Aucun résultat à récupérer", "Ok");
+        }
+
+        private static void ResetResult()
+        {
+            resultUptobox = string.Empty;
         }
 
         private static void GetHelp()
@@ -338,7 +345,7 @@ namespace Suctionator
                     log.LogCritical(ex.Message);
                 }
             }
-            result = string.Join(Environment.NewLine, uptoboxLinks);
+            resultUptobox = string.Join(Environment.NewLine, uptoboxLinks);
         }
 
         private static IWebDriver CreateChromeBrowser()
