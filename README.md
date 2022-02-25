@@ -10,7 +10,7 @@
 ## Roadmap
 
 - [x] Génération liste liens uptobox *(v1.0)*
-- [ ] Download liste *(v2.0)*
+- [x] Download liste *(v2.0)*
 - [ ] Download épisode + récent  *(v2.1)*
 
 
@@ -36,7 +36,7 @@ Tutoriel Configuration (Version 2.+)
 - Copiez votre token Uptobox à partir de [votre page](https://uptobox.com/my_account) : ![image](https://user-images.githubusercontent.com/29730840/154539617-3420b469-4f88-4ba2-aac4-2429182ce3ce.png)
 
 - Sur votre PC exécutez : ![image](https://user-images.githubusercontent.com/29730840/154540387-f9932392-b8fe-4d91-9cb0-99ebbc3b8cf4.png)
-- Créez la variable (utilisateur) qui stockera votre token pour l'éternité avec le nom suivant : `Uptobox_Token`
+- Créez la variable (utilisateur) qui stockera votre token pour l'éternité avec le nom suivant : `Suctionator_Token`
 - Renseignez votre token dans sa value (exemple) : ![image](https://user-images.githubusercontent.com/29730840/154545212-23f90f91-5101-414d-91b1-b408f8b65e06.png)
 
 
