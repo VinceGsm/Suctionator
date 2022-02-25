@@ -9,9 +9,9 @@
 
 ## Roadmap
 
-- [x] Génération liste liens uptobox *(v1.0)*
-- [x] Download liste *(v2.0)*
-- [ ] Download épisode + récent  *(v2.1)*
+- [x] Génération liste liens uptobox (V1.0)
+- [x] Download liste (V2.0)
+- [ ] Download épisode + récent (V2.1)
 
 
 Tutoriel d'utilisation
@@ -37,9 +37,11 @@ Tutoriel Configuration (Version 2.+)
 
 - Sur votre PC exécutez : ![image](https://user-images.githubusercontent.com/29730840/154540387-f9932392-b8fe-4d91-9cb0-99ebbc3b8cf4.png)
 - Créez la variable (utilisateur) qui stockera votre token pour l'éternité avec le nom suivant : `Suctionator_Token`
-- Renseignez votre token dans sa value (exemple) : ![image](https://user-images.githubusercontent.com/29730840/154545212-23f90f91-5101-414d-91b1-b408f8b65e06.png)
+- Renseignez votre token dans sa value comme ci contre : ![image](https://user-images.githubusercontent.com/29730840/155810357-25f75426-bd8f-4ca2-b451-4c8c4a038160.png)
 
+*Si vous souhaitez enregistré vos épisodes ailleurs que dans le dossier par défaut utilisez une autre variable* : `Suctionator_Token`
 
+  
 Thanks to
 -------------
 
