@@ -14,6 +14,7 @@
 - [x] Download liste (V2.0)
 - [ ] Download épisode + récent (V2.1)
 
+<h3 align="center">_<h3/>
 
 Tutoriel d'utilisation
 --------
@@ -23,12 +24,13 @@ Tutoriel d'utilisation
 - Suivez les instructions de l'application
 
 Vous pouvez maintenant au choix : 
-- Téléchargez ces épisodes grâce à Suctionator 
+- Téléchargez ces épisodes grâce à Suctionator (*pour avoir une récupération des liens + leur téléchargement direct activez le mode Auto en cliquant dessus*)
 
 ou
-- Récupérez les liens de téléchargement Uptobox dans "Home" : "Résultat" puis les coller dans un 'Download management tool' comme [JDownloader](https://jdownloader.org/)
+- Récupérez les liens de téléchargement Uptobox dans `Home` : `Résultat` puis les coller dans un 'Download management tool' comme [JDownloader](https://jdownloader.org/)
 
-
+<h3 align="center">_<h3/>
+  
 Tutoriel Configuration (Version 2.+)
 -------------
 ⚠️ Si vous ne possédez pas de compte Uptobox *Premium* la foncionnalité de téléchargement ne fonctionnera pas⚠️
@@ -42,6 +44,7 @@ Tutoriel Configuration (Version 2.+)
 
 ℹ️ *Si vous souhaitez enregistré vos épisodes ailleurs que dans le dossier par défaut utilisez une autre variable* : `Suctionator_Path`
 
+<h3 align="center">_<h3/>
   
 Thanks to
 -------------
