@@ -39,7 +39,7 @@ Tutoriel Configuration (Version 2.+)
 - Créez la variable (utilisateur) qui stockera votre token pour l'éternité avec le nom suivant : `Suctionator_Token`
 - Renseignez votre token dans sa value comme ci contre : ![image](https://user-images.githubusercontent.com/29730840/155810357-25f75426-bd8f-4ca2-b451-4c8c4a038160.png)
 
-*Si vous souhaitez enregistré vos épisodes ailleurs que dans le dossier par défaut utilisez une autre variable* : `Suctionator_Token`
+*Si vous souhaitez enregistré vos épisodes ailleurs que dans le dossier par défaut utilisez une autre variable* : `Suctionator_Path`
 
   
 Thanks to
