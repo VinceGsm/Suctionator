@@ -6,7 +6,7 @@
     <Authors>https://github.com/VinceGusmini</Authors>
     <Description>https://github.com/VinceGusmini/Suctionator</Description>
     <Copyright></Copyright>
-    <PackageId>Suctionator_V.1</PackageId>
+    <PackageId>Suctionator_V.2</PackageId>
     <PackageReleaseNotes />
     <PackageProjectUrl>https://github.com/VinceGusmini/Suctionator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VinceGusmini/Suctionator</RepositoryUrl>
@@ -19,7 +19,8 @@
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
 	  <PlatformTarget>x64</PlatformTarget>
-	  <Version>1.0.2</Version>
+	  <Version>2.0.0</Version>
+	  <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -28,9 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="Selenium.Support" Version="4.1.0" />
     <PackageReference Include="Selenium.WebDriver" Version="4.1.0" />
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="98.0.4758.10200" />
