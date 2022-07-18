@@ -12,14 +12,15 @@
 
 - [x] Génération liste liens uptobox (V1.0)
 - [x] Download liste (V2.0)
-- [ ] Download épisode + récent (V2.1)
+- [ ] Adaptation nouveau site (V2.1)
+- [ ] Special One Piece (V2.2)
 
 <h3 align="center">_<h3/>
 
 Tutoriel d'utilisation
 --------
 
-- Choisissez la série, la saison ainsi que la qualité sur Tirexo
+- Choisissez la série, la saison ainsi que la qualité sur xxxxxxxx
 - Copiez l'URL et renseignez la dans Suctionator
 - Suivez les instructions de l'application
 
