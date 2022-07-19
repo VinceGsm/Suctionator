@@ -202,11 +202,12 @@ namespace Suctionator
             #endregion
 
             #region "Auto" Input
-            labelAutoDl = new Label($"Mode Auto Download : {_isAutoDlOn}")
+
+            labelAutoDl = new Label($"[Cliquer ici] Téléchargement auto : {_isAutoDlOn}")
             {
-                X = btnInput.X - 5,
+                X = btnInput.X - 15,
                 Y = btnInput.Y + 5,
-                Width = 30,
+                Width = 41,
                 Height = 1
             };
             
@@ -214,6 +215,12 @@ namespace Suctionator
             #endregion
 
             home.Add(labelInput, entryLink, btnInput, labelAutoDl);            
+        }
+
+        private static void AutoDLClicked()
+        {
+            _isAutoDlOn = !_isAutoDlOn;
+            labelAutoDl.Text = $"[Cliquer ici] Téléchargement auto : {_isAutoDlOn}";
         }
 
         private static void GoClicked()
@@ -247,12 +254,6 @@ namespace Suctionator
                         " liens Uptobox vous attendent dans le menu \"Résultat\" ", "Super !");
                 }
             }
-        }
-
-        private static void AutoDLClicked()
-        {
-            _isAutoDlOn = !_isAutoDlOn;
-            labelAutoDl.Text = $"Mode Auto Download : {_isAutoDlOn}";
         }
         
         private static void GiveResult()
