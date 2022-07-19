@@ -28,12 +28,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="Selenium.Support" Version="4.1.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.1.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="98.0.4758.10200" />
-    <PackageReference Include="Terminal.Gui" Version="1.4.0" />
+    <PackageReference Include="Selenium.Support" Version="4.3.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.3.0" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="103.0.5060.5300" />
+    <PackageReference Include="Terminal.Gui" Version="1.6.4" />
   </ItemGroup>
 
 </Project>
