@@ -13,7 +13,7 @@
 - [x] Génération liste liens uptobox (V1.0)
 - [x] Download liste (V2.0)
 - [ ] Adaptation nouveau site (V2.1)
-- [ ] Special One Piece (V2.2)
+- [ ] Special One Piece (V2.1.1)
 
 <h3 align="center">_<h3/>
 
@@ -43,7 +43,7 @@ Tutoriel Configuration (Version 2.+)
 - Créez la variable (utilisateur) qui stockera votre token pour l'éternité avec le nom suivant : `Suctionator_Token`
 - Renseignez votre token dans sa value comme ci contre : ![image](https://user-images.githubusercontent.com/29730840/155810357-25f75426-bd8f-4ca2-b451-4c8c4a038160.png)
 
-ℹ️ *Si vous souhaitez enregistré vos épisodes ailleurs que dans le dossier par défaut utilisez une autre variable* : `Suctionator_Path`
+ℹ️ *Si vous souhaitez enregistré vos épisodes ailleurs (comme sur l'exemple ci-dessus) que dans le dossier par défaut utilisez une autre variable* : `Suctionator_Path`
 
 <h3 align="center">_<h3/>
   
