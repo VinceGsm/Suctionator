@@ -51,8 +51,9 @@ namespace Suctionator
                 _pathDl = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
                     "{374DE290-123F-4565-9164-39C4925E467B}", string.Empty).ToString();
             }
-            else if (_pathDl == @"E:\Downloads")
-                _isAutoDlOn = true; //Home
+            // A VOIR SI TOUJOURS UTILE QUAND NAS
+            //else if (_pathDl == @"E:\Downloads")
+            //    _isAutoDlOn = true; //Home
             
             stopWatch = new Stopwatch();        
 
@@ -173,7 +174,7 @@ namespace Suctionator
         private static void SetupHome(View home)
         {
             #region Main Input
-            var labelInput = new Label("URL Tirexo de la saison :")
+            var labelInput = new Label("URL de la saison :")
             {
                 X = Pos.Center(),
                 Y = Pos.Center() - 10,
@@ -223,9 +224,9 @@ namespace Suctionator
             urlInput = entryLink.Text.ToString();
             if (CheckUrl(urlInput))
             {
+                ExtractInfos();
                 if (_isAutoDlOn)
-                {
-                    ExtractInfos();
+                {                    
                     MessageBox.Query(50, 5, "MODE AUTO : ON", $"Aspiration + Download pour {mediaName} (Saison {mediaSeason})", "Suivant");
                     MessageBox.ErrorQuery(50, 5, "MODE AUTO : ON", "NE TOUCHEZ PLUS A RIEN JUSQU'AU PROCHAIN MESSAGE", "Compris");
                     GetPubLinks();
@@ -233,8 +234,7 @@ namespace Suctionator
                     DownloadProcess();
                 }
                 else
-                {
-                    ExtractInfos();
+                {                 
                     MessageBox.Query(50, 5, "1/3 : Extracting data done", $"Aspiration pour {mediaName} (Saison {mediaSeason})", "Suivant");
 
                     GetPubLinks();
@@ -308,12 +308,10 @@ namespace Suctionator
         {
             bool success = Clipboard.TrySetClipboardData(urlIssues);
             if (success)
-                MessageBox.Query(50, 5, "Url du projet récupéré", "En cas de problème merci de créer un post sur Github: " +
+                MessageBox.Query(50, 5, "Message du dev", "En cas de problème merci de créer un post sur Github, " +
                     "le lien a directement été collé dans votre clipbopard", "Ok");
             else
-                MessageBox.ErrorQuery(50, 5, "ERROR", "Impossible de récupéré le lien du projet", "Ok");
-
-            MessageBox.Query(50, 5, "Message du dev", "La remontée de bug aide à améliorer ce projet :)", "<3");
+                MessageBox.Query(50, 5, "Message du dev", "En cas de problème merci de créer un post sur Github: " + urlIssues, "Ok");
         }
 
         private static bool Quit()
