@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Authors>https://github.com/VinceGusmini</Authors>
     <Description>https://github.com/VinceGusmini/Suctionator</Description>
     <Copyright></Copyright>
@@ -14,17 +14,23 @@
 
   <PropertyGroup>
 	  <WebDriverPlatform>win32</WebDriverPlatform>
-	  <PublishChromeDriver>true</PublishChromeDriver>
-	  <PublishSingleFile>true</PublishSingleFile>
+	  <PublishChromeDriver>true</PublishChromeDriver>	  
+	  <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-	  <PlatformTarget>x64</PlatformTarget>
-	  <Version>2.0.0</Version>
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	  <Version>2.1.0</Version>
 	  <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>DEBUG;TRACE;_PUBLISH_CHROMEDRIVER</DefineConstants>
+    <NoWarn />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn />
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +40,13 @@
     <PackageReference Include="Selenium.WebDriver" Version="4.3.0" />
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="103.0.5060.5300" />
     <PackageReference Include="Terminal.Gui" Version="1.6.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

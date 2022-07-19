@@ -46,7 +46,7 @@ namespace Suctionator
             _uptoboxToken = Environment.GetEnvironmentVariable("Suctionator_Token");
             _pathDl = Environment.GetEnvironmentVariable("Suctionator_Path");
 
-            if (string.IsNullOrEmpty(_pathDl))
+            if (string.IsNullOrEmpty(_pathDl)) // TF is this ?
             {
                 _pathDl = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
                     "{374DE290-123F-4565-9164-39C4925E467B}", string.Empty).ToString();
@@ -115,7 +115,7 @@ namespace Suctionator
         #region Front_end + Gui Action
         private static void Soon()
         {
-            MessageBox.ErrorQuery(50, 7, "Prochainement", "Cette fonctionnalité sera disponible dans la Version 2.1", "J'attends");
+            MessageBox.ErrorQuery(50, 7, "Prochainement", "Cette fonctionnalité sera disponible dans la Version 2.1.1", "J'attends");
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace Suctionator
                 if (success)
                     MessageBox.Query(50, 5, "Résultat récupéré", "La liste des liens Upotobox a été copié dans votre clipboard !", "Merci");
                 else
-                    MessageBox.ErrorQuery(50, 5, "ERROR", "Impossible de récupéré les résultats", "Ok");
+                    MessageBox.ErrorQuery(50, 5, "ERROR", "Impossible de récupéré les résultats", "Ok"); // info? c comment pour user mdr ?
             }
             else
                 MessageBox.ErrorQuery(50, 5, "Alerte", "Aucun résultat à récupérer", "Ok");
@@ -281,7 +281,7 @@ namespace Suctionator
             }
             else
             {
-                MessageBox.Query(50, 5, "Download in progress", "Merci de laisser tournée en fond l'application.", "Ok");
+                MessageBox.Query(50, 5, "Download is started", "Merci de laisser tournée en fond l'application.", "Ok");
                 MessageBox.Query(50, 5, "Download in progress", "Un message vous donnera le nombre d'épisode téléchargé ou si une erreur survient", "Ok");
 
                 DownloadProcess();
