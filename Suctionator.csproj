@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Authors>https://github.com/VinceGusmini</Authors>
     <Description>https://github.com/VinceGusmini/Suctionator</Description>
     <Copyright></Copyright>
-    <PackageId>Suctionator_V.1</PackageId>
+    <PackageId>Suctionator_V.2</PackageId>
     <PackageReleaseNotes />
     <PackageProjectUrl>https://github.com/VinceGusmini/Suctionator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VinceGusmini/Suctionator</RepositoryUrl>
@@ -14,27 +14,39 @@
 
   <PropertyGroup>
 	  <WebDriverPlatform>win32</WebDriverPlatform>
-	  <PublishChromeDriver>true</PublishChromeDriver>
-	  <PublishSingleFile>true</PublishSingleFile>
+	  <PublishChromeDriver>true</PublishChromeDriver>	  
+	  <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-	  <PlatformTarget>x64</PlatformTarget>
-	  <Version>1.0.2</Version>
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	  <Version>2.1.0</Version>
+	  <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>DEBUG;TRACE;_PUBLISH_CHROMEDRIVER</DefineConstants>
+    <NoWarn />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn />
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
-    <PackageReference Include="Selenium.Support" Version="4.1.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.1.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="98.0.4758.10200" />
-    <PackageReference Include="Terminal.Gui" Version="1.4.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Selenium.Support" Version="4.7.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.7.0" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="108.0.5359.7100" />
+    <PackageReference Include="Terminal.Gui" Version="1.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
