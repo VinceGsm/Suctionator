@@ -20,15 +20,15 @@
 Tutoriel d'utilisation
 --------
 
-- Choisissez la série, la saison ainsi que la qualité sur xxxxxxxx
+- Choisissez la série, la saison ainsi que la qualité sur Darkino
 - Copiez l'URL et renseignez la dans Suctionator
 - Suivez les instructions de l'application
 
 Vous pouvez maintenant au choix : 
-- Téléchargez ces épisodes grâce à Suctionator (*pour avoir une récupération des liens + leur téléchargement direct activez le mode Auto en cliquant dessus*)
+- Récupérez les liens de téléchargement Uptobox dans `Home` : `Résultat` puis les coller dans un 'Download management tool' comme [JDownloader](https://jdownloader.org/)
 
 ou
-- Récupérez les liens de téléchargement Uptobox dans `Home` : `Résultat` puis les coller dans un 'Download management tool' comme [JDownloader](https://jdownloader.org/)
+- Téléchargez ces épisodes grâce à Suctionator (*pour avoir une récupération des liens + leur téléchargement direct activez le mode Auto en cliquant dessus*)
 
 <h3 align="center">_<h3/>
   
@@ -60,4 +60,4 @@ Thanks to
 ------------
 
 
-Designed and coded by [Vince](https://github.com/VinceGusmini).
+Designed and coded by [Vince](https://github.com/VinceGsm).

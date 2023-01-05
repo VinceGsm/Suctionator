@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿
+using HtmlAgilityPack;
 using Microsoft.Win32;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -6,9 +7,11 @@ using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -20,7 +23,7 @@ namespace Suctionator
     {
         private static string _version = "Version " + Assembly.GetEntryAssembly()
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
-        private static string urlIssues = "https://github.com/VinceGusmini/Suctionator/issues";                        
+        private static string urlIssues = "https://github.com/VinceGsm/Suctionator/issues";                        
         private static string _pathDl;
         private static string _uptoboxToken;        
         private static int numLastEpisode = 0;
@@ -46,16 +49,15 @@ namespace Suctionator
             _uptoboxToken = Environment.GetEnvironmentVariable("Suctionator_Token");
             _pathDl = Environment.GetEnvironmentVariable("Suctionator_Path");
 
-            if (string.IsNullOrEmpty(_pathDl)) // TF is this ?
+            if (string.IsNullOrEmpty(_pathDl)) // default DL folder from Windows
             {
                 _pathDl = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
                     "{374DE290-123F-4565-9164-39C4925E467B}", string.Empty).ToString();
             }
-            // A VOIR SI TOUJOURS UTILE QUAND NAS
-            //else if (_pathDl == @"E:\Downloads")
+            //else if (_pathDl == @"E:\xxxxxxxx")
             //    _isAutoDlOn = true; //Home
-            
-            stopWatch = new Stopwatch();        
+
+            stopWatch = new Stopwatch();
 
             // GUI
             Application.Init();
@@ -229,7 +231,7 @@ namespace Suctionator
             stopWatch.Start();
 
             urlInput = entryLink.Text.ToString();
-            if (CheckUrl(urlInput))
+            if (CheckUrlAsync(urlInput).Result)
             {
                 ExtractInfos();
                 if (_isAutoDlOn)
@@ -310,7 +312,7 @@ namespace Suctionator
             bool success = Clipboard.TrySetClipboardData(urlIssues);
             if (success)
                 MessageBox.Query(50, 5, "Message du dev", "En cas de problème merci de créer un post sur Github, " +
-                    "le lien a directement été collé dans votre clipbopard", "Ok");
+                    "le lien a directement été collé dans votre clipboard", "Ok");
             else
                 MessageBox.Query(50, 5, "Message du dev", "En cas de problème merci de créer un post sur Github: " + urlIssues, "Ok");
         }
@@ -322,8 +324,12 @@ namespace Suctionator
         }
         #endregion
 
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
         #region Back_end    
+
+        //////////////      DL : Uptobox           /////////////
+        
         /// <summary>
         /// Use token Uptobox to download all the links in the result var
         /// </summary>
@@ -347,7 +353,7 @@ namespace Suctionator
             string requestTokenUrl = $"https://uptobox.com/api/link?token={_uptoboxToken}&file_code={codeToken}";
             try
             {
-                using (WebClient client = new WebClient())
+                using (WebClient client = new WebClient()) // UPDATE ?
                 {
                     // Get the final url to DL with the Token
                     var responseToken = client.DownloadString(requestTokenUrl);
@@ -389,25 +395,26 @@ namespace Suctionator
         /// </summary>
         /// <param name="urlInput"></param>
         /// <returns></returns>
-        private static bool CheckUrl(string urlInput)
+        private static async Task<bool> CheckUrlAsync(string urlInput)
         {
-            if (!urlInput.Contains("tirexo"))
+            if (!urlInput.Contains("darkino"))
             {
-                MessageBox.ErrorQuery(50, 7, "Error", "Merci de fournir un URL de Tirexo", "Ok");
+                MessageBox.ErrorQuery(50, 7, "Error", "Merci de fournir un URL de darkino", "Ok");
                 return false;
             }
 
-            HttpClient httpClient = new HttpClient();
             try
             {
-                string htmlStr = httpClient.GetStringAsync(urlInput).Result;
+                var client = new HttpClient();
+                var bodyStr = await client.GetStringAsync(urlInput);
                 
-                htmlDoc.LoadHtml(htmlStr);
+                htmlDoc.LoadHtml(bodyStr);
 
                 if (!string.IsNullOrEmpty(htmlDoc.ParsedText))
                     return true;
                 else
                     throw new Exception();
+                //string htmlStr = httpClient.GetStringAsync(urlInput).Result; // Page in string
             }
             catch (Exception ex)
             {
@@ -416,10 +423,11 @@ namespace Suctionator
             return false;
         }
 
+
         /// <summary>
         /// Extract media name + media season
         /// </summary>
-        private static void ExtractInfos()
+        private static void ExtractInfos() //#Tirexo
         {
             try
             {
@@ -435,7 +443,8 @@ namespace Suctionator
                 var tmpSeasonNode = tmpLi.FirstOrDefault(x => x.OuterHtml.StartsWith("<li><strong>Saison</strong> :"));
 
                 baseUrlInput = urlInput.Substring(0, endIndex + 1);
-                mediaName = CleanHtmlCode(tmpMediaName);
+                //mediaName = CleanHtmlCode(tmpMediaName); // still usefull ?
+                mediaName = tmpMediaName;
                 mediaSeason = tmpSeasonNode.InnerHtml.Substring(26, 1);
             }
             catch (Exception ex)
@@ -443,20 +452,21 @@ namespace Suctionator
                 MessageBox.ErrorQuery(50, 7, "Error", $"ExtractInfos failed : {ex.Message}", "Ok");
             }
         }
+                
 
-        private static void GetUptoboxLinks()
-        {                       
+        private static void GetUptoboxLinks() //#Tirexo
+        {
             foreach (string pubLink in pubLinks)
             {
                 IWebDriver browserDriver = CreateChromeBrowser();
                 try
                 {
                     browserDriver.Manage().Window.Maximize();
-                    browserDriver.Navigate().GoToUrl(pubLink);                    
+                    browserDriver.Navigate().GoToUrl(pubLink);
 
                     Actions actionProvider = new Actions(browserDriver);
 
-                    var h3Result = browserDriver.FindElements(By.TagName("h3")).ToList();                    
+                    var h3Result = browserDriver.FindElements(By.TagName("h3")).ToList();
                     var btnCaptcha = browserDriver.FindElement(By.Id("captcha"));
                     var btnValidate = browserDriver.FindElement(By.Id("sumbit_btn"));
 
@@ -464,10 +474,10 @@ namespace Suctionator
                     actionProvider.MoveToElement(safeZone).Build().Perform();
 
                     actionProvider.MoveToElement(btnCaptcha).Build().Perform();
-                    actionProvider.Click(btnCaptcha).Build().Perform();                    
+                    actionProvider.Click(btnCaptcha).Build().Perform();
 
                     actionProvider.MoveToElement(btnValidate).Build().Perform();
-                    actionProvider.Click(btnValidate).Build().Perform();                    
+                    actionProvider.Click(btnValidate).Build().Perform();
 
                     h3Result = browserDriver.FindElements(By.TagName("h3")).ToList();
                     string htmlText = h3Result.First(x => x.Text.Contains("uptobox.com/")).Text;
@@ -478,24 +488,14 @@ namespace Suctionator
                 }
                 catch (Exception ex)
                 {
-                    browserDriver.Quit();                    
+                    browserDriver.Quit();
                 }
             }
             resultUptobox = string.Join(Environment.NewLine, uptoboxLinks);
         }
 
-        private static IWebDriver CreateChromeBrowser()
-        {
-            // No log --> conflicts GUI
-            ChromeDriverService silentService = ChromeDriverService.CreateDefaultService();
-            silentService.EnableVerboseLogging = false;
-            silentService.SuppressInitialDiagnosticInformation = true;
-            silentService.HideCommandPromptWindow = true;
 
-            return new ChromeDriver(silentService);
-        }
-
-        private static void GetPubLinks()
+        private static void GetPubLinks() //#Tirexo
         {
             try
             {
@@ -506,21 +506,21 @@ namespace Suctionator
                 HtmlNode nodePubLinks = tmpPubTable.ChildNodes.FirstOrDefault(child => child.Name == "tbody");
 
                 var lstTr = nodePubLinks.ChildNodes.ToList();
-                lstTr.RemoveAt(lstTr.Count -1); //trash
-                lstTr.RemoveAt(lstTr.Count -1); //footer
+                lstTr.RemoveAt(lstTr.Count - 1); //trash
+                lstTr.RemoveAt(lstTr.Count - 1); //footer
                 lstTr.Reverse(); //index = reverse upload order
 
-                countTotalLinks = lstTr.Count;                
+                countTotalLinks = lstTr.Count;
 
                 //TODO : choose link by size
                 foreach (var tr in lstTr)
                 {
                     if (firstTime)
                     {
-                        firstTime = false;                                                
+                        firstTime = false;
                         numLastEpisode = RecoverNumEpisode(tr);
                         pubLinks.Add(RecoverLinkEpisode(tr));
-                        numEpisodeTarget = numLastEpisode -1;
+                        numEpisodeTarget = numLastEpisode - 1;
                     }
 
                     if (RecoverNumEpisode(tr) == numEpisodeTarget)
@@ -536,27 +536,27 @@ namespace Suctionator
             }
         }
 
-        private static void ResetResult()
-        {
-            resultUptobox = string.Empty;
-            uptoboxLinks.Clear();
-        }
-
-        private static int RecoverNumEpisode(HtmlNode node)
+        private static int RecoverNumEpisode(HtmlNode node) //#Tirexo
         {
             int res;
             string innerTextClean = node.InnerText.Remove(0, 1); // cut \n
             var splitResult = innerTextClean.Split(' ');
 
             string potentialRes = (splitResult[1].Any(char.IsDigit)) ? splitResult[1] : splitResult[2];
-            
+
             int.TryParse(potentialRes, out res);
             return res;
         }
 
-        private static string RecoverLinkEpisode(HtmlNode node)
+        private static string RecoverLinkEpisode(HtmlNode node) //#Tirexo
         {
             return baseUrlInput + "link-" + node.Attributes.FirstOrDefault().Value + ".html";
+        }        
+
+        private static void ResetResult()
+        {
+            resultUptobox = string.Empty;
+            uptoboxLinks.Clear();
         }
 
         private static string CleanHtmlCode(string tmpSeasonNumber)
@@ -569,6 +569,46 @@ namespace Suctionator
         {
             htmlDoc = new HtmlDocument();
             htmlDoc.OptionFixNestedTags = true;
+        }
+
+        private static IWebDriver CreateChromeBrowser()
+        {
+            // No log --> conflicts GUI
+            ChromeDriverService silentService = ChromeDriverService.CreateDefaultService();
+            silentService.EnableVerboseLogging = false;
+            silentService.SuppressInitialDiagnosticInformation = true;
+            silentService.HideCommandPromptWindow = true;
+
+            return new ChromeDriver(silentService);
+        }
+
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+        private static string GetIPAddress()
+        {
+            String address = "";
+            WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
+            using (WebResponse response = request.GetResponse())
+            using (StreamReader stream = new StreamReader(response.GetResponseStream()))
+            {
+                address = stream.ReadToEnd();
+            }
+
+            int first = address.IndexOf("Address: ") + 9;
+            int last = address.LastIndexOf("</body>");
+            address = address.Substring(first, last - first);
+
+            return address;
         }
         #endregion
     }
