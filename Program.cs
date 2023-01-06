@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Terminal.Gui;
+using static System.Net.WebRequestMethods;
 
 namespace Suctionator
 {
@@ -36,6 +37,7 @@ namespace Suctionator
         private static bool _isAutoDlOn = false;
         private static string urlInput = string.Empty;
         private static string mediaName = string.Empty;
+        private static string mediaNbEp = string.Empty;        
         private static string mediaSeason = string.Empty;
         private static string baseUrlInput = string.Empty;
         private static string resultUptobox = string.Empty;
@@ -229,8 +231,9 @@ namespace Suctionator
         {            
             ResetResult();
             stopWatch.Start();
-
+            
             urlInput = entryLink.Text.ToString();
+            urlInput = "https://www3.darkino.com/animes/727653-jojo-s-bizarre-adventure-season-3.html";
             if (CheckUrlAsync(urlInput).Result)
             {
                 ExtractInfos();
@@ -311,8 +314,8 @@ namespace Suctionator
         {
             bool success = Clipboard.TrySetClipboardData(urlIssues);
             if (success)
-                MessageBox.Query(50, 5, "Message du dev", "En cas de problème merci de créer un post sur Github, " +
-                    "le lien a directement été collé dans votre clipboard", "Ok");
+                MessageBox.Query(50, 5, "Message du dev", "Merci de créer un post sur Github, " +
+                    "le lien a été copié dans votre clipboard", "Ok");
             else
                 MessageBox.Query(50, 5, "Message du dev", "En cas de problème merci de créer un post sur Github: " + urlIssues, "Ok");
         }
@@ -405,6 +408,36 @@ namespace Suctionator
 
             try
             {
+                using (WebClient webCli = new WebClient())
+                {
+                    string bodyStr = webCli.DownloadString(urlInput);
+
+                    htmlDoc.LoadHtml(bodyStr);
+
+                    if (!string.IsNullOrEmpty(htmlDoc.ParsedText))
+                        return true;
+                    else
+                        throw new Exception();
+                }                                                                                
+            }
+            catch (Exception ex)
+            {
+                MessageBox.ErrorQuery(50, 7, "Error", "Impossible d'accéder à la page", "Ok");                
+            }
+            return false;
+        }
+
+        /* OLD
+         private static async Task<bool> CheckUrlAsync(string urlInput)
+        {
+            if (!urlInput.Contains("darkino"))
+            {
+                MessageBox.ErrorQuery(50, 7, "Error", "Merci de fournir un URL de darkino", "Ok");
+                return false;
+            }
+
+            try
+            {
                 var client = new HttpClient();
                 var bodyStr = await client.GetStringAsync(urlInput);
                 
@@ -422,6 +455,7 @@ namespace Suctionator
             }
             return false;
         }
+         */
 
 
         /// <summary>
@@ -434,18 +468,18 @@ namespace Suctionator
                 var offset = urlInput.IndexOf('/');
                 offset = urlInput.IndexOf('/', offset + 1);
                 int endIndex = urlInput.IndexOf('/', offset + 1);
+                baseUrlInput = urlInput.Substring(0, endIndex + 1);
 
                 var tmpLi = htmlDoc.DocumentNode.Descendants("li").ToList();
-                var tmpH3 = htmlDoc.DocumentNode.Descendants("h3").ToList();
-                var tmpDiv = htmlDoc.DocumentNode.Descendants("div").ToList();
-
-                var tmpMediaName = tmpH3.First().InnerText;
-                var tmpSeasonNode = tmpLi.FirstOrDefault(x => x.OuterHtml.StartsWith("<li><strong>Saison</strong> :"));
-
-                baseUrlInput = urlInput.Substring(0, endIndex + 1);
-                //mediaName = CleanHtmlCode(tmpMediaName); // still usefull ?
-                mediaName = tmpMediaName;
-                mediaSeason = tmpSeasonNode.InnerHtml.Substring(26, 1);
+                var tmpH3 = htmlDoc.DocumentNode.Descendants("h3").ToList();                
+                
+                var tmpMediaName = tmpH3.First().InnerText.TrimEnd();
+                var tmpSeasonNode = tmpLi.FirstOrDefault(x => x.InnerHtml.StartsWith("<strong>Saison :</strong>"));
+                var tmpNbEpNode = tmpLi.FirstOrDefault(x => x.InnerHtml.StartsWith("<strong>Nombre d'épisodes</strong>"));
+                
+                mediaName = CleanHtmlCode(tmpMediaName);                            
+                mediaNbEp = string.Concat(tmpNbEpNode.InnerHtml.Trim().Where(char.IsNumber));
+                mediaSeason = string.Concat(tmpSeasonNode.InnerHtml.Trim().Where(char.IsNumber));
             }
             catch (Exception ex)
             {
@@ -555,6 +589,9 @@ namespace Suctionator
 
         private static void ResetResult()
         {
+            mediaName= string.Empty;
+            mediaSeason = string.Empty;
+            mediaNbEp = string.Empty;
             resultUptobox = string.Empty;
             uptoboxLinks.Clear();
         }
