@@ -1,5 +1,4 @@
-﻿
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using Microsoft.Win32;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -55,7 +54,7 @@ namespace Suctionator
             {
                 _pathDl = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
                     "{374DE290-123F-4565-9164-39C4925E467B}", string.Empty).ToString();
-            }
+            }            
             //else if (_pathDl == @"E:\xxxxxxxx")
             //    _isAutoDlOn = true; //Home
 
@@ -459,7 +458,7 @@ namespace Suctionator
 
 
         /// <summary>
-        /// Extract media name + media season
+        /// Extract media name + season + Nb episode
         /// </summary>
         private static void ExtractInfos() //#Tirexo
         {
