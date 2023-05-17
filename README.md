@@ -8,7 +8,7 @@
 <h3 align="center">Suctionator fait tout le boulot pour vous !<h3/>
 
 
-## Roadmap
+##  ̶R̶O̶A̶D̶M̶A̶P̶  PROJECT CANCELED
 
 - [x] Génération liste liens uptobox (V1.0)
 - [x] Download liste (V2.0)
